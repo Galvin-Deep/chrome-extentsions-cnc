@@ -1,0 +1,14 @@
+{
+  "manifest_version": 3,
+  "name": "CNC-ClickAndCopy",
+  "version": "1.0",
+  "description": "点击即复制",
+  "icons": {
+    "48": "icon48.png"
+  },
+  "action": {
+    "default_popup": "popup.html"
+  },  
+  "permissions": ["storage", "clipboardWrite"],
+  "host_permissions": ["<all_urls>"]
+}

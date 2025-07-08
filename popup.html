@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>CNC</title>
+  <style>
+    body {
+      width: 370px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      padding: 0;
+      margin: 0;
+      background-color: #f4f4f9;
+      color: #333;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px;
+      background-color: #007bff;
+      color: white;
+      width: 350px;
+    }
+
+    .header h3 {
+      min-width: 0;
+      margin: 0;
+      font-size: 16px;
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    #settingsBtn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+    }
+
+    #settingsBtn svg {
+      width: 24px;
+      height: 24px;
+      fill: white;
+    }
+
+    .list {
+      max-height: 300px;
+      overflow-y: auto;
+      border-top: 1px solid #ddd;
+      background-color: #fff;
+    }
+
+    .item {
+      cursor: pointer;
+      border-bottom: 1px solid #eee;
+      padding: 10px 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: background-color 0.2s;
+    }
+
+    .item:last-child {
+      border-bottom: none;
+    }
+
+    .item:hover {
+      background-color: #f0f0f0;
+    }
+
+    .item-title {
+      flex-grow: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      padding-right: 10px;
+    }
+
+    #settingsView {
+      padding: 10px;
+      border-top: 1px solid #ddd;
+      background-color: #fff;
+      display: none;
+    }
+
+    #settingsView h3 {
+      border-bottom: 2px solid #007bff;
+      padding-bottom: 5px;
+      color: #0056b3;
+      margin-top: 0;
+      margin-bottom: 15px;
+    }
+
+    input,
+    textarea {
+      margin: 8px 0;
+      display: block;
+      width: 100%;
+      padding: 8px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 60px;
+    }
+
+    .form-buttons button {
+      width: 100%;
+      height: 36px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .form-buttons button:hover {
+      background-color: #0056b3;
+    }
+
+    #updateBtn {
+      background-color: #28a745;
+    }
+
+    #updateBtn:hover {
+      background-color: #218838;
+    }
+
+    .item-buttons {
+      flex-shrink: 0;
+    }
+
+    .item-buttons button {
+      width: auto;
+      display: inline-block;
+      padding: 2px 6px;
+      margin-left: 5px;
+      font-size: 12px;
+    }
+
+    .item-buttons .delete-btn {
+      background-color: #dc3545;
+    }
+
+    .item-buttons .delete-btn:hover {
+      background-color: #c82333;
+    }
+
+    .item-buttons .edit-btn {
+      background-color: #ffc107;
+      color: #212529;
+    }
+
+    .item-buttons .edit-btn:hover {
+      background-color: #e0a800;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="header">
+    <h3>内容列表</h3>
+    <button id="settingsBtn" title="设置">
+      <svg viewBox="0 0 24 24">
+        <path
+          d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" />
+      </svg>
+    </button>
+  </div>
+
+  <div class="list" id="contentList"></div>
+
+  <div id="settingsView">
+    <h3>添加/编辑</h3>
+    <input type="number" id="index" placeholder="显示顺序" />
+    <input type="text" id="title" placeholder="标题" />
+    <textarea id="content" placeholder="内容"></textarea>
+    <div class="form-buttons">
+      <button id="saveBtn">保存</button>
+      <button id="updateBtn" style="display:none;">更新</button>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+
+</html>
