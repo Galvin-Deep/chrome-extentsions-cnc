@@ -7,12 +7,22 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById("saveBtn").addEventListener("click", saveItem);
   document.getElementById("updateBtn").addEventListener("click", updateItem);
   document.getElementById("settingsBtn").addEventListener("click", toggleSettingsView);
+  document.getElementById("cancelBtn").addEventListener("click", () => {
+    if (editingIndex === null) {
+      toggleSettingsView();
+    } else {
+      resetAndPrepareForAdd(); // Call resetAndPrepareForAdd to clear the form
+    }
+  });
 });
 
 function toggleSettingsView() {
   isSettingsViewVisible = !isSettingsViewVisible;
   const settingsView = document.getElementById('settingsView');
   settingsView.style.display = isSettingsViewVisible ? 'block' : 'none';
+  if (isSettingsViewVisible) {
+    resetAndPrepareForAdd(); // Call resetAndPrepareForAdd when settings view is shown
+  }
   renderList();
 }
 
@@ -58,7 +68,7 @@ function updateItem() {
 function saveAndReload() {
   items.sort((a, b) => a.index - b.index);
   chrome.storage.local.set({ items }, () => {
-    clearForm();
+    resetAndPrepareForAdd();
     loadItems();
   });
 }
@@ -76,16 +86,14 @@ function renderList() {
     titleSpan.textContent = item.title;
     div.appendChild(titleSpan);
 
-    div.addEventListener("click", (e) => {
-      if (e.target !== titleSpan) return;
+    div.addEventListener("click", () => {
       navigator.clipboard.writeText(item.content).then(() => {
-        const originalText = titleSpan.textContent;
-        titleSpan.textContent = "Copied!";
+        const globalCopiedMessage = document.getElementById("globalCopiedMessage");
+        globalCopiedMessage.style.opacity = 1;
         setTimeout(() => {
-          titleSpan.textContent = originalText;
+          globalCopiedMessage.style.opacity = 0;
         }, 1000);
       }).catch(err => {
-        console.error('Could not copy text: ', err);
         alert("Copy failed");
       });
     });
@@ -95,8 +103,8 @@ function renderList() {
       btnContainer.className = "item-buttons";
 
       const editBtn = document.createElement("button");
-      editBtn.textContent = "编辑";
       editBtn.className = "edit-btn";
+      editBtn.innerHTML = '<svg><use href="#edit-icon"></use></svg>';
       editBtn.onclick = (e) => {
         e.stopPropagation();
         editingIndex = index;
@@ -105,11 +113,12 @@ function renderList() {
         document.getElementById("index").value = item.index;
         document.getElementById("saveBtn").style.display = "none";
         document.getElementById("updateBtn").style.display = "inline-block";
+        document.getElementById("cancelBtn").textContent = "Reset"; // Set text to Reset
       };
 
       const delBtn = document.createElement("button");
-      delBtn.textContent = "删除";
       delBtn.className = "delete-btn";
+      delBtn.innerHTML = '<svg><use href="#delete-icon"></use></svg>';
       delBtn.onclick = (e) => {
         e.stopPropagation();
         if (confirm("确定删除？")) {
@@ -123,15 +132,21 @@ function renderList() {
       div.appendChild(btnContainer);
     }
 
+
+
     listDiv.appendChild(div);
   });
 }
 
-function clearForm() {
+function resetAndPrepareForAdd() {
   document.getElementById("title").value = "";
   document.getElementById("content").value = "";
-  document.getElementById("index").value = "";
+  const maxIndex = items.length > 0 ? Math.max(...items.map(item => item.index)) : 0;
+  document.getElementById("index").value = maxIndex + 1;
   document.getElementById("saveBtn").style.display = "block";
   document.getElementById("updateBtn").style.display = "none";
+  document.getElementById("cancelBtn").textContent = "Cancel"; // Set text to Cancel
   editingIndex = null;
 }
+
+

@@ -49,27 +49,31 @@
     }
 
     .list {
+      display: flex;
+      flex-wrap: wrap;
+      padding: 10px;
       max-height: 300px;
       overflow-y: auto;
-      border-top: 1px solid #ddd;
-      background-color: #fff;
     }
 
     .item {
       cursor: pointer;
-      border-bottom: 1px solid #eee;
+      border: 1px solid #e0e0e0;
       padding: 10px 15px;
+      margin: 5px;
+      border-radius: 8px;
+      background-color: #ffffff;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
       display: flex;
       justify-content: space-between;
       align-items: center;
-      transition: background-color 0.2s;
-    }
-
-    .item:last-child {
-      border-bottom: none;
+      position: relative; /* Added for absolute positioning of copied message */
     }
 
     .item:hover {
+      border-color: #007bff;
+      border-width: 1px;
+      box-shadow: 0 6px 12px rgba(0, 123, 255, 0.2);
       background-color: #f0f0f0;
     }
 
@@ -79,6 +83,24 @@
       overflow: hidden;
       text-overflow: ellipsis;
       padding-right: 10px;
+      display: flex;
+      align-items: center;
+    }
+
+    .global-copied-message {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: rgba(0, 0, 0, 0.7);
+      color: white;
+      padding: 8px 15px;
+      border-radius: 5px;
+      font-size: 16px;
+      opacity: 0;
+      transition: opacity 0.3s ease-in-out;
+      pointer-events: none;
+      z-index: 1000;
     }
 
     #settingsView {
@@ -112,8 +134,14 @@
       min-height: 60px;
     }
 
+    .form-buttons {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px; /* Add some space between buttons */
+    }
+
     .form-buttons button {
-      width: 100%;
+      flex: 1; /* Make buttons take equal space */
       height: 36px;
       background-color: #007bff;
       color: white;
@@ -126,12 +154,21 @@
       background-color: #0056b3;
     }
 
+    .form-buttons .cancel-button {
+      background-color: #e0e0e0; /* 浅灰色 */
+      color: #333;
+    }
+
+    .form-buttons .cancel-button:hover {
+      background-color: #cccccc; /* 鼠标悬停时更深的灰色 */
+    }
+
     #updateBtn {
-      background-color: #28a745;
+      background-color: #007bff; /* 蓝色 */
     }
 
     #updateBtn:hover {
-      background-color: #218838;
+      background-color: #0056b3; /* 鼠标悬停时更深的蓝色 */
     }
 
     .item-buttons {
@@ -139,28 +176,49 @@
     }
 
     .item-buttons button {
-      width: auto;
-      display: inline-block;
-      padding: 2px 6px;
+      width: 24px;
+      height: 24px;
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      padding: 0;
       margin-left: 5px;
-      font-size: 12px;
+      border-radius: 50%;
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .item-buttons button svg {
+      width: 16px;
+      height: 16px;
+      fill: white;
     }
 
     .item-buttons .delete-btn {
-      background-color: #dc3545;
+      background-color: #e9ecef; /* Light grey */
     }
 
     .item-buttons .delete-btn:hover {
-      background-color: #c82333;
+      background-color: #dc3545; /* Red for delete on hover */
     }
 
     .item-buttons .edit-btn {
-      background-color: #ffc107;
+      background-color: #e9ecef; /* Light grey */
       color: #212529;
     }
 
     .item-buttons .edit-btn:hover {
-      background-color: #e0a800;
+      background-color: #007bff; /* Blue for edit on hover */
+    }
+
+    .item-buttons button svg {
+      fill: #6c757d; /* Darker grey icon color */
+    }
+
+    .item-buttons .delete-btn:hover svg,
+    .item-buttons .edit-btn:hover svg {
+      fill: white; /* White icon on hover for better contrast */
     }
   </style>
 </head>
@@ -168,8 +226,8 @@
 <body>
 
   <div class="header">
-    <h3>内容列表</h3>
-    <button id="settingsBtn" title="设置">
+    <h3>Click and Copy</h3>
+    <button id="settingsBtn" title="Setting">
       <svg viewBox="0 0 24 24">
         <path
           d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" />
@@ -177,18 +235,30 @@
     </button>
   </div>
 
+  <div id="globalCopiedMessage" class="global-copied-message">Copied!</div>
+
   <div class="list" id="contentList"></div>
 
   <div id="settingsView">
-    <h3>添加/编辑</h3>
-    <input type="number" id="index" placeholder="显示顺序" />
-    <input type="text" id="title" placeholder="标题" />
-    <textarea id="content" placeholder="内容"></textarea>
+    <h3>Add/Edit</h3>
+    <input type="number" id="index" placeholder="display order" />
+    <input type="text" id="title" placeholder="title" />
+    <textarea id="content" placeholder="content"></textarea>
     <div class="form-buttons">
-      <button id="saveBtn">保存</button>
-      <button id="updateBtn" style="display:none;">更新</button>
+      <button id="cancelBtn" class="cancel-button">Cancel</button>
+      <button id="saveBtn">Save</button>
+      <button id="updateBtn">Update</button>
     </div>
   </div>
+
+  <svg style="display: none;">
+    <symbol id="edit-icon" viewBox="0 0 24 24">
+      <path fill="currentColor" d="M3 17.25V21h3.75L18.75 9.75l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+    </symbol>
+    <symbol id="delete-icon" viewBox="0 0 24 24">
+      <path fill="currentColor" d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+    </symbol>
+  </svg>
 
   <script src="popup.js"></script>
 </body>
